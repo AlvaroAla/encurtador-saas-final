@@ -60,4 +60,4 @@ Siga o passo a passo abaixo para rodar o projeto na sua máquina:
 * **Componentização:** Padrões `Clean Code` e separação rigorosa de componentes (`/components/layout`, `/lib/auth`, `/lib/db`) facilitando refatoração por outros desenvolvedores da equipe.
 
 ---
-Desenvolvido com dedicação para compor portfólio profissional de Engenharia de Software.
+Desenvolvido com dedicação para compor portfólio profissional.
