@@ -1,0 +1,10 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Estilos globais base da aplicação, definindo cor de fundo e texto padrão */
+@layer base {
+  body {
+    @apply bg-slate-50 text-slate-900;
+  }
+}

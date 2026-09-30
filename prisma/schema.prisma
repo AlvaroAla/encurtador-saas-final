@@ -1,0 +1,66 @@
+// Configuração do gerador do Prisma Client
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Configuração da conexão com o banco de dados PostgreSQL
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Definição dos papéis de usuário (Para controle de acesso futuro)
+enum Role {
+  USER
+  ADMIN
+}
+
+// Modelo de Usuários
+model User {
+  id        String   @id @default(uuid()) // Identificador único (UUID)
+  name      String   // Nome do usuário
+  email     String   @unique // E-mail único, não pode haver dois iguais
+  password  String   // Senha (armazenada como hash)
+  role      Role     @default(USER) // Nível de acesso padrão
+  urls      Url[]    // Relacionamento: Um usuário pode ter várias URLs
+  active    Boolean  @default(true) // Status da conta (Ativa/Inativa)
+  createdAt DateTime @default(now()) // Data de criação da conta
+  updatedAt DateTime @updatedAt // Data da última atualização
+}
+
+// Modelo de URLs encurtadas
+model Url {
+  id          String    @id @default(uuid())
+  originalUrl String    // O link original longo
+  shortCode   String    @unique // O código curto gerado (ex: aB3x9)
+  userId      String?   // Opcional, permite usuários anônimos encurtarem links
+  user        User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  clicksCount Int       @default(0) // Contador total de acessos
+  active      Boolean   @default(true) // Permite desativar o link temporariamente
+  expiresAt   DateTime? // Opcional, para links com data de validade
+  clicks      Click[]   // Relacionamento: Uma URL pode ter vários cliques registrados
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Índices para otimizar as buscas no banco de dados
+  @@index([shortCode])
+  @@index([userId])
+}
+
+// Modelo de registro de Cliques/Analytics
+model Click {
+  id        String   @id @default(uuid())
+  urlId     String
+  url       Url      @relation(fields: [urlId], references: [id], onDelete: Cascade)
+  ipHash    String?  // Hash do IP para manter a privacidade do usuário (LGPD)
+  userAgent String?  // Informações completas do navegador do visitante
+  referer   String?  // De qual site o usuário veio
+  country   String?  // País de origem (se fornecido pela hospedagem)
+  device    String?  // Tipo de dispositivo (Mobile, Desktop)
+  browser   String?  // Navegador utilizado
+  os        String?  // Sistema Operacional
+  createdAt DateTime @default(now()) // Momento exato do clique
+
+  @@index([urlId])
+  @@index([createdAt])
+}
